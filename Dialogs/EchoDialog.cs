@@ -86,6 +86,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
 
                             await context.PostAsync(reply);
                         }
+                       
                         else
                         {
                             await context.PostAsync("You said: " + message.Text);
@@ -149,30 +150,81 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
 
             PromptDialog.Text(
                 context: context,
-                resume: CustomerMobileNumber,
-                prompt: "What is your complaint/suggestion? ",
+                resume: CustomerApartment,
+                prompt: "May I have your Mobile Number?",
                 retry: "Sorry, I don't understand that.");
         }
-        public async Task CustomerMobileNumber(IDialogContext context, IAwaitable<string> result)
+        public async Task CustomerApartment(IDialogContext context,IAwaitable<string> result)
         {
             string response = await result;
-            complaint = response;
+            phone = response;
 
-            PromptDialog.Text(
-                context: context,
-                resume: CustomerEmail,
-                prompt: "May I have your Mobile Number? ",
-                retry: "Sorry, I don't understand that.");
+            if(phone==null)
+            {
+                PromptDialog.Text(
+                              context: context,
+                              resume: CustomerApartChecking,
+                              prompt: "Alright, I belive you live in Apt. 901 at Barsha 1 Tower? Am i right ?",
+                              retry: "Sorry, I don't understand that.");
+            }
+               else
+            {
+
+            }
+
         }
-        public async Task CustomerEmail(IDialogContext context, IAwaitable<string> result)
+        public async Task CustomerApartChecking(IDialogContext context, IAwaitable<string> result)
+        {
+            string res = await result;
+            if(res.Contains("Yes") || res.StartsWith("Y") || res.StartsWith("y") || res.Contains("yes"))
+            {
+                PromptDialog.Text(
+               context: context,
+               resume: CustomerEmail,
+               prompt: "What is your complaint/suggestion?",
+               retry: "Sorry, I don't understand that.");
+            }
+            else
+            {
+                PromptDialog.Text(
+              context: context,
+              resume: CustomerAfterAPRT,
+              prompt: " Im sorry, I got you wrong, May i know your apartment details please?",
+              retry: "Sorry, I don't understand that.");
+            }
+
+        }
+        public async Task CustomerAfterAPRT(IDialogContext context, IAwaitable<string> result)
         {
             string response = await result;
             phone = response;
 
             PromptDialog.Text(
+                context: context,
+                resume: CustomerEmail,
+                prompt: "Thank you for that and I have updated my information, May i know your compliant?",
+                retry: "Sorry, I don't understand that.");
+        }
+        //public async Task CustomerMobileNumber(IDialogContext context, IAwaitable<string> result)
+        //{
+        //    string response = await result;
+        //    phone = response;
+
+        //    PromptDialog.Text(
+        //        context: context,
+        //        resume: CustomerEmail,
+        //        prompt: "What is your complaint/suggestion?",
+        //        retry: "Sorry, I don't understand that.");
+        //}
+        public async Task CustomerEmail(IDialogContext context, IAwaitable<string> result)
+        {
+            string response = await result;
+            complaint = response;
+
+            PromptDialog.Text(
                context: context,
                resume: FinalResultHandler,
-               prompt: "May I have your Email ID? ",
+               prompt: "Sorry to hear that, I am going to register a complaint right away, for that I need your email ID as well",
                retry: "Sorry, I don't understand that.");
         }
         public virtual async Task FinalResultHandler(IDialogContext context, IAwaitable<string> argument)
