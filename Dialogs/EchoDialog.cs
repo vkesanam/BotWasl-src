@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 using Microsoft.Bot.Connector;
@@ -6,6 +6,7 @@ using Microsoft.Bot.Builder.Dialogs;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace Microsoft.Bot.Sample.SimpleEchoBot
 {
@@ -19,6 +20,12 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
         public string phone;
         public string complaint;
         public string language;
+        static string host = "https://api.microsofttranslator.com";
+        static string path = "/V2/Http.svc/Translate";
+
+        // NOTE: Replace this example key with a valid subscription key.
+        static string key = "830fda84bdce4810a78cc508745a2f9e";
+
         // Live Assist custom channel data.
         public class LiveAssistChannelData
         {
@@ -181,15 +188,44 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
         retry: "Sorry, I don't understand that.");
 
         }
+        private async Task<string> Translation(string text)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", key);
+            string uri = host + path + "?from=ar-ae&to=en-us&text=" + System.Net.WebUtility.UrlEncode(text);
+
+            HttpResponseMessage response = await client.GetAsync(uri);
+
+            string result = await response.Content.ReadAsStringAsync();
+            var content = XElement.Parse(result).Value;
+            return content;
+        }
+
         public async Task ResumeLanguageOptions(IDialogContext context, IAwaitable<string> argument)
         {
-            PromptDialog.Text(
-           context: context,
-           resume: ServiceMessageReceivedAsyncService,
-           prompt: $@"Which category you want to prefer?. {Environment.NewLine} 1. New Lease Enquiry {Environment.NewLine} 2. Customer Support",
-           retry: "Sorry, I don't understand that.");
+            var result = await argument;
+            if(result.Contains("English"))
+            {
+                PromptDialog.Text(
+         context: context,
+         resume: ServiceMessageReceivedAsyncService,
+         prompt: $@"Which category you want to prefer?. {Environment.NewLine} 1. New Lease Enquiry {Environment.NewLine} 2. Customer Support",
+         retry: "Sorry, I don't understand that.");
+            }
+          else
+            {
+                PromptDialog.Text(
+        context: context,
+        resume: ServiceMessageArabic,
+        prompt: "ما هي الفئة التي تريد ان تفضلها ؟. جديد الإيجار الاستفسار   دعم العملاء",
+        retry: "Sorry, I don't understand that.");
+            }
         }
-        public async Task ServiceMessageReceivedAsyncService(IDialogContext context, IAwaitable<string> result)
+        public async Task ServiceMessageArabic(IDialogContext context, IAwaitable<string> result)
+        {
+
+        }
+            public async Task ServiceMessageReceivedAsyncService(IDialogContext context, IAwaitable<string> result)
         {
             var userFeedback = await result;
 
@@ -476,7 +512,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
                 GetHeroCard(
                      "Wasl Properties",
                     "AED 250000",
-                    "Wasl Properties is a leading real estate master developer based in Dubai. Aligned to the leadership�s vision and overall development plans.",
+                    "Wasl Properties is a leading real estate master developer based in Dubai. Aligned to the leadership’s vision and overall development plans.",
                     new CardImage(url: "https://dubaipropertieschatbot.azurewebsites.net/2.jpg"),
                     new CardAction(ActionTypes.OpenUrl, "Read more", value: "https://www.waslproperties.com/en")),
                 GetHeroCard(
