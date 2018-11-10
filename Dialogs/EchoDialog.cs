@@ -106,6 +106,14 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
                                 context.Wait(MessageReceivedAsync);
                             }
                         }
+                        else if(message.Text.Contains("issue") || message.Text.Contains("problem"))
+                        {
+                            PromptDialog.Text(
+                               context: context,
+                               resume: CustomerRepeatChecking,
+                               prompt: "May i know your mobile number for verification purpose?",
+                               retry: "Sorry, I don't understand that.");
+                        }
                         else
                         {
                             await context.PostAsync("You said: " + message.Text);
@@ -132,6 +140,46 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
                 await context.PostAsync($"{this.count++}: You said {message.Text}");
                 context.Wait(MessageReceivedAsync);
             }
+        }
+        public async Task CustomerRepeatChecking(IDialogContext context, IAwaitable<string> argument)
+        {
+            if(phone!=null)
+            {
+                
+                     PromptDialog.Text(
+           context: context,
+           resume: RepeatFinal,
+           prompt: "Thank you for that, May i know your compliant ? ",
+           retry: "Sorry, I don't understand that.");
+            }
+            else
+            {
+                PromptDialog.Text(
+          context: context,
+          resume: ServiceMessageReceivedAsyncService,
+          prompt: $@"Which category you want to prefer?. {Environment.NewLine} 1. New Lease Enquiry {Environment.NewLine} 2. Customer Support",
+          retry: "Sorry, I don't understand that.");
+            }
+           
+        }
+        public async Task RepeatFinal(IDialogContext context,IAwaitable<string> argument)
+        {
+            string response = await argument;
+            complaint = response;
+
+            await context.PostAsync($@"Thank you for your interest, your request has been logged. Our customer service team will get back to you shortly.
+                                    {Environment.NewLine}Your service request  summary:
+                                    {Environment.NewLine}Complaint Title: {complaint},
+                                    {Environment.NewLine}Customer Name: {customerName},
+                                    {Environment.NewLine}Phone Number: {phone},
+                                    {Environment.NewLine}Email: {email}");
+
+            PromptDialog.Text(
+        context: context,
+        resume: AnythingElseHandler,
+        prompt: "Is there anything else that I could help?",
+        retry: "Sorry, I don't understand that.");
+
         }
         public async Task ResumeLanguageOptions(IDialogContext context, IAwaitable<string> argument)
         {
