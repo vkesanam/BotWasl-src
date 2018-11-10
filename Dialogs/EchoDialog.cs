@@ -86,7 +86,26 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
 
                             await context.PostAsync(reply);
                         }
-                       
+                       else if(message.Text.StartsWith("hi") || message.Text.StartsWith("hello") || message.Text.StartsWith("Hi"))
+                        {
+                            if(customerName==null)
+                            {
+                                string Welcomemessage2 = "Glad to talk to you. Welcome to iBot - your Virtual Wasl Property Consultant.";
+                                await context.PostAsync(Welcomemessage2);
+
+                                PromptDialog.Text(
+                                context: context,
+                                resume: ResumeLanguageOptions,
+                                prompt: $@"Which language you want to prefer?{Environment.NewLine} 1. English {Environment.NewLine} 2. Arabic",
+                                retry: "Sorry, I don't understand that.");
+                            }
+                            else
+                            {
+                                string message23 = "Tell me " + customerName + ". How i can help you?";
+                                await context.PostAsync(message23);
+                                context.Wait(MessageReceivedAsync);
+                            }
+                        }
                         else
                         {
                             await context.PostAsync("You said: " + message.Text);
@@ -126,7 +145,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
         {
             var userFeedback = await result;
 
-            if (userFeedback.Contains("New Lease Enquiry"))
+            if (userFeedback.Contains("New Lease Enquiry") || userFeedback.Contains("Lease") || userFeedback.Contains("lease"))
             {
                 PromptDialog.Text(
                 context: context,
@@ -134,7 +153,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
                 prompt: "May i know your Name please?",
                 retry: "Sorry, I don't understand that.");
             }
-            else if (userFeedback.Contains("Customer Support"))
+            else if (userFeedback.Contains("Customer Support") || userFeedback.Contains("customer support") || userFeedback.Contains("support") || userFeedback.Contains("service"))
             {
                 PromptDialog.Text(
            context: context,
@@ -246,7 +265,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
 
 
             var answer = await argument;
-            if (answer.Contains("Yes") || answer.StartsWith("y"))
+            if (answer.Contains("Yes") || answer.StartsWith("y") || answer.StartsWith("Y") || answer.StartsWith("yes"))
             {
                 await GeneralGreeting(context, null);
             }
@@ -292,14 +311,14 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
         {
             var userFeedback = await result;
 
-            if (userFeedback.Contains("Residential") || userFeedback.Contains("Commercial"))
-            {
+           // if (userFeedback.Contains("Residential") || userFeedback.Contains("Commercial") || userFeedback.Contains("residence") || userFeedback.Contains("residential") || userFeedback.Contains("commercial"))
+            //{
                 PromptDialog.Text(
                context: context,
                resume: PropertyCity,
                prompt: "Great. I can show you active homes If you tell me a little bit, Which part of UAE are you looking in?",
                retry: "Sorry, I don't understand that.");
-            }
+            //}
         }
         public async Task PropertyCity(IDialogContext context, IAwaitable<string> result)
         {
@@ -362,7 +381,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
         public async Task CustomerLeadCreation(IDialogContext context, IAwaitable<string> result)
         {
             var answer = await result;
-            if (answer.Contains("y") || answer.Contains("Yes"))
+            if (answer.Contains("y") || answer.Contains("Yes") || answer.StartsWith("Y") || answer.StartsWith("Y"))
             {
                 PromptDialog.Text(
                context: context,
