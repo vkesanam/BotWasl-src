@@ -223,9 +223,58 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
         }
         public async Task ServiceMessageArabic(IDialogContext context, IAwaitable<string> result)
         {
+            string transText = await Translation(result.ToString());
 
+            if (transText.Contains("New Lease Enquiry") || transText.Contains("Lease") || transText.Contains("lease"))
+            {
+                PromptDialog.Text(
+                context: context,
+                resume: NameCategoryArabic,
+                prompt: "هل لي ان اعرف اسمك من فضلك ؟",
+                retry: "Sorry, I don't understand that.");
+            }
+            else if (transText.Contains("Customer Support") || transText.Contains("customer support") || transText.Contains("support") || transText.Contains("service"))
+            {
+                PromptDialog.Text(
+           context: context,
+           resume: CustomerArabic,
+           prompt: "هل لي ان اعرف اسمك من فضلك ؟",
+           retry: "Sorry, I don't understand that.");
+                //Name
+            }
         }
-            public async Task ServiceMessageReceivedAsyncService(IDialogContext context, IAwaitable<string> result)
+
+        public async Task NameCategoryArabic(IDialogContext context, IAwaitable<string> result)
+        {
+            await context.PostAsync("هل تبحث عن السكنية/التجارية ؟");
+        }
+        public async Task CustomerArabic(IDialogContext context, IAwaitable<string> result)
+        {
+            PromptDialog.Text(
+                context: context,
+                resume: ComplaintArabic,
+                prompt: "هل لي برقم هاتفك النقال ؟",
+                retry: "Sorry, I don't understand that.");
+
+            //Number
+        }
+        public async Task ComplaintArabic(IDialogContext context, IAwaitable<string> result)
+        {
+            PromptDialog.Text(
+                context: context,
+                resume: FinalCaseArabic,
+                prompt: "ما هي شكواك ؟",
+                retry: "Sorry, I don't understand that.");
+
+            //Complaint
+        }
+        public async Task FinalCaseArabic(IDialogContext context, IAwaitable<string> result)
+        {
+            await context.PostAsync("أشكركم علي التفاصيل الخاصة بك. سيقوم وكيل خدمه العملاء لدينا بالرد عليك في غضون 24 ساعة.");
+
+            //Complaint
+        }
+        public async Task ServiceMessageReceivedAsyncService(IDialogContext context, IAwaitable<string> result)
         {
             var userFeedback = await result;
 
