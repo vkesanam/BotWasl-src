@@ -242,6 +242,20 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
            retry: "Sorry, I don't understand that.");
                 //Name
             }
+            else
+            {
+                await context.PostAsync("Transfering to agent...");
+                var reply = context.MakeMessage();
+                //var transferTo = message.Text.Substring(TRANSFER_MESSAGE.Length);
+
+                reply.ChannelData = new LiveAssistChannelData()
+                {
+                    Type = "transfer",
+                    Skill = "BotEscalation"
+                };
+
+                await context.PostAsync(reply);
+            }
         }
 
         public async Task NameCategoryArabic(IDialogContext context, IAwaitable<string> result)
