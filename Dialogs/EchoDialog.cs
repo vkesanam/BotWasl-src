@@ -93,9 +93,9 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
 
                             await context.PostAsync(reply);
                         }
-                       else if(message.Text.StartsWith("hi") || message.Text.StartsWith("hello") || message.Text.StartsWith("Hi"))
+                        else if (message.Text.StartsWith("hi") || message.Text.StartsWith("hello") || message.Text.StartsWith("Hi"))
                         {
-                            if(customerName==null)
+                            if (customerName == null)
                             {
                                 string Welcomemessage2 = "Glad to talk to you. Welcome to iBot - your Virtual Wasl Property Consultant.";
                                 await context.PostAsync(Welcomemessage2);
@@ -113,12 +113,20 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot
                                 context.Wait(MessageReceivedAsync);
                             }
                         }
-                        else if(message.Text.Contains("issue") || message.Text.Contains("problem"))
+                        else if (message.Text.Contains("issue") || message.Text.Contains("problem"))
                         {
                             PromptDialog.Text(
                                context: context,
                                resume: CustomerRepeatChecking,
                                prompt: "May i know your mobile number for verification purpose?",
+                               retry: "Sorry, I don't understand that.");
+                        }
+                        else if (message.Text.Contains("sell") || message.Text.Contains("buy") || message.Text.Contains("property"))
+                        {
+                            PromptDialog.Text(
+                               context: context,
+                               resume: ResumeLanguageOptions,
+                               prompt: $@"Which language you want to prefer?{Environment.NewLine} 1. English {Environment.NewLine} 2. Arabic",
                                retry: "Sorry, I don't understand that.");
                         }
                         else
